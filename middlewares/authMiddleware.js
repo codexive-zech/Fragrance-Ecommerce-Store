@@ -37,4 +37,13 @@ const authentication = async (req, res, next) => {
   }
 };
 
-module.exports = { authentication };
+const authorization = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      throw new authorization("Unauthorized To Access This Route");
+    }
+    next();
+  };
+};
+
+module.exports = { authentication, authorization };
