@@ -5,6 +5,7 @@ const { attachCookiesToResponse } = require("../utils/jwt");
 const crypto = require("crypto");
 const Token = require("../model/Token");
 const createTokenUser = require("../utils/createTokenUser");
+const validateMongoDBId = require("../utils/validateMongoDBId");
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -13,7 +14,10 @@ const register = async (req, res) => {
     throw new badRequestError("Account Already Created With This Email");
   }
   const user = await User.create(req.body);
-  const tokenUser = createTokenUser(user);
+  const tokenDetail = {
+    userId: user._id,
+    role: user.role,
+  };
   let refreshToken = "";
   // Creating fresh Token collection
   refreshToken = crypto.randomBytes(40).toString("hex");
@@ -22,7 +26,7 @@ const register = async (req, res) => {
   const userToken = { refreshToken, userAgent, ip, user: user._id };
   await Token.create(userToken);
   // End of fresh Token collection creation
-  attachCookiesToResponse({ res, user: tokenUser, refreshToken });
+  attachCookiesToResponse({ res, user: tokenDetail, refreshToken });
   res.status(StatusCodes.CREATED).json({ user });
 };
 
@@ -62,4 +66,19 @@ const login = async (req, res) => {
   res.status(StatusCodes.OK).json({ user });
 };
 
-module.exports = { register, login };
+const logout = async (req, res) => {
+  const { userId } = req.user;
+  validateMongoDBId(userId);
+  await Token.findOneAndDelete({ user: userId });
+  res.cookie("accessToken", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
+  res.cookie("refreshToken", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
+  res.status(StatusCodes.OK).json({ message: "User Logout Successfully" });
+};
+
+module.exports = { register, login, logout };
