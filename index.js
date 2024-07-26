@@ -1,24 +1,25 @@
 require("dotenv").config();
 require("express-async-errors");
 const express = require("express");
+const cookieParser = require("cookie-parser");
+// DB
 const connectDB = require("./db/connect");
+// Routers
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+// Error Middleware
 const errorHandlerMiddleware = require("./middlewares/errorHandlerMiddleware");
 const notFoundMiddleware = require("./middlewares/notFoundMiddleware");
+
 const app = express();
 
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Hello");
-});
+app.use(cookieParser(process.env.JWT_SECRET));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 
 app.use("*", notFoundMiddleware);
-
 app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5500;

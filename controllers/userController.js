@@ -3,6 +3,12 @@ const User = require("../model/User");
 const { notFoundError } = require("../errors");
 const validateMongoDBId = require("../utils/validateMongoDBId");
 
+const getCurrentUser = async (req, res) => {
+  const { userId } = req.user;
+  const user = await User.findOne({ _id: userId });
+  res.status(StatusCodes.OK).json({ user });
+};
+
 const getAllUsers = async (req, res) => {
   const users = await User.find({});
   res.status(StatusCodes.OK).json({ users, count: users.length });
@@ -76,6 +82,7 @@ const unblockUser = async (req, res) => {
 };
 
 module.exports = {
+  getCurrentUser,
   getAllUsers,
   getSingleUser,
   updateUser,
