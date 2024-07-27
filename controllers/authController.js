@@ -4,7 +4,7 @@ const { badRequestError, unauthenticatedError } = require("../errors");
 const { attachCookiesToResponse } = require("../utils/jwt");
 const crypto = require("crypto");
 const Token = require("../model/Token");
-const createTokenUser = require("../utils/createTokenUser");
+
 const validateMongoDBId = require("../utils/validateMongoDBId");
 
 const register = async (req, res) => {
