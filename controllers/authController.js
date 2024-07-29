@@ -4,7 +4,6 @@ const { badRequestError, unauthenticatedError } = require("../errors");
 const { attachCookiesToResponse } = require("../utils/jwt");
 const crypto = require("crypto");
 const Token = require("../model/Token");
-
 const validateMongoDBId = require("../utils/validateMongoDBId");
 
 const register = async (req, res) => {
@@ -36,12 +35,10 @@ const login = async (req, res) => {
     throw new badRequestError("Please Provide Email & Password");
   }
   const user = await User.findOne({ email });
-
   if (!user) {
     throw new unauthenticatedError("Please Provide Valid Credentials");
   }
   const isPasswordCorrect = await user.comparePassword(password);
-
   if (!isPasswordCorrect) {
     throw new unauthenticatedError(
       "Incorrect Password. Provide Valid Password"
@@ -81,4 +78,16 @@ const logout = async (req, res) => {
   res.status(StatusCodes.OK).json({ message: "User Logout Successfully" });
 };
 
-module.exports = { register, login, logout };
+const changePassword = async (req, res) => {
+  const { password } = req.body;
+  const { userId } = req.user;
+  const user = await User.findOne({ _id: userId });
+  if (password) {
+    user.password = password;
+    const updatedUser = await user.save();
+    res.status(StatusCodes.OK).json({ updatedUser });
+  }
+  res.status(StatusCodes.OK).json({ user });
+};
+
+module.exports = { register, login, logout, changePassword };

@@ -3,14 +3,12 @@ require("express-async-errors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
-
 // DB
 const connectDB = require("./db/connect");
 // Routers
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const productRouter = require("./routes/productRoutes");
-
 // Error Middleware
 const errorHandlerMiddleware = require("./middlewares/errorHandlerMiddleware");
 const notFoundMiddleware = require("./middlewares/notFoundMiddleware");
@@ -40,6 +38,7 @@ const startDB = async () => {
     });
   } catch (error) {
     console.log(error);
+    process.exit(1);
   }
 };
 

@@ -15,10 +15,6 @@ const getProducts = async (req, res) => {
   const countAllProducts = await Product.countDocuments();
   const queryObj = { ...req.query };
 
-  // if (req.query.search) {
-  //   queryObj.title = { $regex: req.query.search, $options: "i" };
-  // }
-
   // Filtering - Category, Brand, Color, Price
   const queryToExclude = ["sort", "page", "limit", "fields"];
   queryToExclude.forEach((query) => delete queryObj[query]);
