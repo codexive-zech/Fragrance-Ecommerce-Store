@@ -1,5 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
-const { notFoundError } = require("../errors");
+const { notFoundError, badRequestError } = require("../errors");
 const Product = require("../model/Product");
 const slugify = require("slugify");
 
@@ -12,8 +12,50 @@ const createProduct = async (req, res) => {
 };
 
 const getProducts = async (req, res) => {
-  const products = await Product.find({});
-  res.status(StatusCodes.OK).json({ products });
+  const countAllProducts = await Product.countDocuments();
+  const queryObj = { ...req.query };
+
+  // if (req.query.search) {
+  //   queryObj.title = { $regex: req.query.search, $options: "i" };
+  // }
+
+  // Filtering - Category, Brand, Color, Price
+  const queryToExclude = ["sort", "page", "limit", "fields"];
+  queryToExclude.forEach((query) => delete queryObj[query]);
+  let queryStr = JSON.stringify(queryObj);
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  let productQuery = Product.find(JSON.parse(queryStr));
+
+  // Sorting
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" ");
+    productQuery = productQuery.sort(sortBy);
+  } else {
+    productQuery = productQuery.sort("-createdAt"); // latest entry
+  }
+
+  // Fields Selection
+  if (req.query.fields) {
+    const fieldList = req.query.fields.split(",").join(" ");
+    productQuery = productQuery.select(fieldList);
+  } else {
+    productQuery = productQuery.select("-__v");
+  }
+
+  // Pagination
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
+  const skip = (page - 1) * limit;
+  productQuery = productQuery.skip(skip).limit(limit);
+
+  if (req.query.page) {
+    if (skip >= countAllProducts) {
+      throw new badRequestError("This Page Does Not Exist");
+    }
+  }
+
+  const products = await productQuery;
+  res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 
 const getSingleProduct = async (req, res) => {
