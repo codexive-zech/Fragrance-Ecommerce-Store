@@ -1,10 +1,15 @@
 const { StatusCodes } = require("http-status-codes");
 const User = require("../model/User");
-const { badRequestError, unauthenticatedError } = require("../errors");
+const {
+  badRequestError,
+  unauthenticatedError,
+  notFoundError,
+} = require("../errors");
 const { attachCookiesToResponse } = require("../utils/jwt");
 const crypto = require("crypto");
 const Token = require("../model/Token");
 const validateMongoDBId = require("../utils/validateMongoDBId");
+const sendEmail = require("../utils/sendEmail");
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -90,4 +95,50 @@ const changePassword = async (req, res) => {
   res.status(StatusCodes.OK).json({ user });
 };
 
-module.exports = { register, login, logout, changePassword };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new notFoundError("User Does Not Exist With This Email");
+  }
+  const token = await user.createResetPasswordToken();
+  await user.save();
+  const resetUrl = `<p>Hello ${user.firstName}, Please Follow This Link To Reset Your Password. This Link With be Valid For The Next 10 Minutes. <a href="http://localhost:5100/api/v1/auth/reset-password/${token}">Click Here</a></p>`;
+  const data = {
+    to: email,
+    subject: "Reset Password",
+    text: `Hey ${user.firstName}`,
+    html: resetUrl,
+  };
+  sendEmail(data);
+  res
+    .status(StatusCodes.OK)
+    .json({ token, message: "Reset Password Mail Sent" });
+};
+
+const resetPassword = async (req, res) => {
+  const { password } = req.body;
+  const { token } = req.params;
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpire: { $gt: Date.now() },
+  });
+  if (!user) {
+    throw new badRequestError("Token Already Expire, Try Again.");
+  }
+  user.password = password;
+  user.passwordResetToken = null;
+  user.passwordResetExpire = null;
+  await user.save();
+  res.status(StatusCodes.OK).json({ user });
+};
+
+module.exports = {
+  register,
+  login,
+  logout,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+};
