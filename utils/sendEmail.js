@@ -21,6 +21,7 @@ const sendEmail = async (data, req, res) => {
     html: data.html, // html body
   });
 };
-// obxd dejz irio psbs
 
 module.exports = sendEmail;
+
+// obxd1dejz2irio3psbs

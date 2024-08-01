@@ -50,7 +50,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   const isPasswordMatch = await bcrypt.compare(
     candidatePassword,
     this.password
-  );
+  ); // comparing the hashed password in DB and the added password during Login.
   return isPasswordMatch;
 };
 
