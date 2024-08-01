@@ -9,8 +9,21 @@ const createBlog = async (req, res) => {
 };
 
 const getBlogs = async (req, res) => {
-  const blogs = await Blog.find({});
-  res.status(StatusCodes.OK).json({ blogs });
+  const queryObj = {};
+  if (req.query.search) {
+    queryObj.title = { $regex: req.query.search, $options: "i" };
+  }
+
+  let blogs = Blog.find(queryObj).sort("-createdAt");
+
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  blogs = blogs.skip(skip).limit(limit);
+
+  const allBlogs = await blogs;
+  res.status(StatusCodes.OK).json({ allBlogs, count: allBlogs.length });
 };
 
 const getSingleBlog = async (req, res) => {
