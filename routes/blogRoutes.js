@@ -5,6 +5,8 @@ const {
   getSingleBlog,
   updateBlog,
   deleteBlog,
+  likeBlog,
+  dislikeBlog,
 } = require("../controllers/blogController");
 const {
   authentication,
@@ -16,6 +18,11 @@ router
   .route("/")
   .post(authentication, authorization("admin"), createBlog)
   .get(getBlogs);
+
+router.route("/likes").patch(authentication, likeBlog);
+
+router.route("/dislikes").patch(authentication, dislikeBlog);
+
 router
   .route("/:id")
   .get(getSingleBlog)
