@@ -4,8 +4,8 @@ const unauthenticatedError = require("./unauthenticated");
 const unauthorizedError = require("./unauthorized");
 
 module.exports = {
-  notFoundError,
   badRequestError,
   unauthenticatedError,
   unauthorizedError,
+  notFoundError,
 };

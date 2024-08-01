@@ -11,6 +11,7 @@ const {
   authentication,
   authorization,
 } = require("../middlewares/authMiddleware");
+const { validateIdParam } = require("../middlewares/validationMiddleware");
 
 router
   .route("/")
@@ -18,8 +19,13 @@ router
   .get(getProducts);
 router
   .route("/:id")
-  .get(getSingleProduct)
-  .patch(authentication, authorization("admin"), updateProduct)
-  .delete(authentication, authorization("admin"), deleteProduct);
+  .get(validateIdParam, getSingleProduct)
+  .patch(authentication, authorization("admin"), validateIdParam, updateProduct)
+  .delete(
+    authentication,
+    authorization("admin"),
+    validateIdParam,
+    deleteProduct
+  );
 
 module.exports = router;

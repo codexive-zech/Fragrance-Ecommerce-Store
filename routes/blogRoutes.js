@@ -12,6 +12,7 @@ const {
   authentication,
   authorization,
 } = require("../middlewares/authMiddleware");
+const { validateIdParam } = require("../middlewares/validationMiddleware");
 const router = express.Router();
 
 router
@@ -25,8 +26,8 @@ router.route("/dislikes").patch(authentication, dislikeBlog);
 
 router
   .route("/:id")
-  .get(getSingleBlog)
-  .patch(authentication, authorization("admin"), updateBlog)
-  .delete(authentication, authorization("admin"), deleteBlog);
+  .get(validateIdParam, getSingleBlog)
+  .patch(authentication, authorization("admin"), validateIdParam, updateBlog)
+  .delete(authentication, authorization("admin"), validateIdParam, deleteBlog);
 
 module.exports = router;

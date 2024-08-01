@@ -4,8 +4,8 @@ const Product = require("../model/Product");
 const slugify = require("slugify");
 
 const createProduct = async (req, res) => {
-  if (req.body.title) {
-    req.body.slug = slugify(req.body.title);
+  if (req.body.name) {
+    req.body.slug = slugify(req.body.name);
   }
   const product = await Product.create(req.body);
   res.status(StatusCodes.CREATED).json({ product });
@@ -66,8 +66,8 @@ const getSingleProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   const { id: productId } = req.params;
-  if (req.body.title) {
-    req.body.slug = slugify(req.body.title);
+  if (req.body.name) {
+    req.body.slug = slugify(req.body.name);
   }
   const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
     new: true,
