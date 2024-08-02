@@ -14,7 +14,7 @@ const withValidationMiddleware = (validationRules) => {
           .map((err) => err.msg)
           .join(", ");
         if (errorMessage[0].startsWith("Not Authorized")) {
-          throw new UnauthorizedError(errorMessage);
+          throw new unauthorizedError(errorMessage);
         }
         throw new badRequestError(errorMessage);
       }
@@ -64,12 +64,49 @@ const validateIdParam = withValidationMiddleware([
     }
     return true;
   }),
-  (req, res, next) => {
-    if (req.user.role !== "admin") {
-      throw new unauthorizedError("Not Authorized To Access This Route");
-    }
-    next();
-  },
 ]);
 
-module.exports = { validateRegisterInput, validateLoginInput, validateIdParam };
+const validateProductInput = withValidationMiddleware([
+  body("name").notEmpty().withMessage("Please Provide Product Name"),
+  body("description")
+    .notEmpty()
+    .withMessage("Please Provide Product Description"),
+  body("price").notEmpty().withMessage("Please Provide Product Price"),
+  body("quantity").notEmpty().withMessage("Please Provide Product Quantity"),
+  body("category").notEmpty().withMessage("Please Provide Product Category"),
+  body("brand").notEmpty().withMessage("Please Provide Product Brand"),
+  // body("color").notEmpty().withMessage("Please Provide Product Color"),
+]);
+
+const validateBlogInput = withValidationMiddleware([
+  body("title").notEmpty().withMessage("Please Provide Blog Title"),
+  body("description").notEmpty().withMessage("Please Provide Blog Description"),
+  body("category").notEmpty().withMessage("Please Provide Blog Category"),
+]);
+
+const validateUpdateUserInput = withValidationMiddleware([
+  body("firstName").notEmpty().withMessage("Please Provide First Name"),
+  body("lastName").notEmpty().withMessage("Please Provide Last Name"),
+  body("email")
+    .notEmpty()
+    .withMessage("Please Provide Email")
+    .isEmail()
+    .withMessage("Invalid Email Address")
+    .custom(async (value, { req }) => {
+      const user = await User.findOne({ email: value });
+      if (user && user._id.toString() !== req.user.userId) {
+        throw new badRequestError("Email Already Exist");
+      }
+    }), // To distinguish Unique Email
+]);
+
+// add validation for other updating part of Model
+
+module.exports = {
+  validateRegisterInput,
+  validateLoginInput,
+  validateIdParam,
+  validateProductInput,
+  validateBlogInput,
+  validateUpdateUserInput,
+};

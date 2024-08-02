@@ -12,12 +12,15 @@ const {
   authentication,
   authorization,
 } = require("../middlewares/authMiddleware");
-const { validateIdParam } = require("../middlewares/validationMiddleware");
+const {
+  validateIdParam,
+  validateBlogInput,
+} = require("../middlewares/validationMiddleware");
 const router = express.Router();
 
 router
   .route("/")
-  .post(authentication, authorization("admin"), createBlog)
+  .post(authentication, authorization("admin"), validateBlogInput, createBlog)
   .get(getBlogs);
 
 router.route("/likes").patch(authentication, likeBlog);

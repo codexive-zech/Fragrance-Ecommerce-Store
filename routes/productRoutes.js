@@ -11,11 +11,19 @@ const {
   authentication,
   authorization,
 } = require("../middlewares/authMiddleware");
-const { validateIdParam } = require("../middlewares/validationMiddleware");
+const {
+  validateIdParam,
+  validateProductInput,
+} = require("../middlewares/validationMiddleware");
 
 router
   .route("/")
-  .post(authentication, authorization("admin"), createProduct)
+  .post(
+    authentication,
+    authorization("admin"),
+    validateProductInput,
+    createProduct
+  )
   .get(getProducts);
 router
   .route("/:id")
