@@ -15,7 +15,7 @@ const { validateIdParam } = require("../middlewares/validationMiddleware");
 
 router
   .route("/")
-  .get(authentication, authorization("admin"), getBlogCategory)
+  .get(getBlogCategory)
   .post(authentication, authorization("admin"), createBlogCategory);
 router
   .route("/:id")
