@@ -11,6 +11,8 @@ const userRouter = require("./routes/userRoutes");
 const productRouter = require("./routes/productRoutes");
 const blogRouter = require("./routes/blogRoutes");
 const prodCategoryRouter = require("./routes/prodCategoryRoutes");
+const blogCategoryRouter = require("./routes/blogCategoryRoutes");
+
 // Error Middleware
 const errorHandlerMiddleware = require("./middlewares/errorHandlerMiddleware");
 const notFoundMiddleware = require("./middlewares/notFoundMiddleware");
@@ -28,6 +30,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/blogs", blogRouter);
 app.use("/api/v1/product-category", prodCategoryRouter);
+app.use("/api/v1/blog-category", blogCategoryRouter);
 
 app.use("*", notFoundMiddleware);
 app.use(errorHandlerMiddleware);
