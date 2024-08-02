@@ -33,6 +33,12 @@ const userSchema = mongoose.Schema(
     passwordResetExpire: {
       type: Date,
     },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   { timestamp: true }
 );

@@ -25,7 +25,7 @@ const getSingleBrand = async (req, res) => {
 
 const updateSingleBrand = async (req, res) => {
   const { id: brandId } = req.params;
-  const Brand = await Brand.findByIdAndUpdate({ _id: brandId }, req.body, {
+  const brand = await Brand.findByIdAndUpdate({ _id: brandId }, req.body, {
     new: true,
     runValidators: true,
   });

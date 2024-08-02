@@ -2,6 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const { notFoundError, badRequestError } = require("../errors");
 const Product = require("../model/Product");
 const slugify = require("slugify");
+const User = require("../model/User");
 
 const createProduct = async (req, res) => {
   if (req.body.name) {
@@ -89,10 +90,35 @@ const deleteProduct = async (req, res) => {
   res.status(StatusCodes.OK).json({ product });
 };
 
+const addProductToWishlist = async (req, res) => {
+  const { userId } = req.user;
+  const { prodId } = req.body;
+  const user = await User.findOne({ _id: userId });
+  const productAlreadyInWishlist = user?.wishlist?.find(
+    (id) => id.toString() === prodId
+  );
+  if (productAlreadyInWishlist) {
+    const userProd = await User.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { wishlist: prodId } },
+      { new: true, runValidators: true }
+    );
+    res.status(StatusCodes.OK).json({ userProd });
+  } else {
+    const userProd = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { wishlist: prodId } },
+      { new: true, runValidators: true }
+    );
+    res.status(StatusCodes.OK).json({ userProd });
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  addProductToWishlist,
 };
