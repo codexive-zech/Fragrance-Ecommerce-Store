@@ -26,7 +26,9 @@ router
     createProduct
   )
   .get(getProducts);
-router.route("/wishlist").patch(authentication, addProductToWishlist);
+router
+  .route("/wishlist")
+  .patch(authentication, validateIdParam, addProductToWishlist);
 router
   .route("/:id")
   .get(validateIdParam, getSingleProduct)

@@ -1,7 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const User = require("../model/User");
 const { notFoundError } = require("../errors");
-const validateMongoDBId = require("../utils/validateMongoDBId");
 
 const getCurrentUser = async (req, res) => {
   const { userId } = req.user;
@@ -16,7 +15,6 @@ const getAllUsers = async (req, res) => {
 
 const getSingleUser = async (req, res) => {
   const { id: userId } = req.params;
-  validateMongoDBId(userId);
   const user = await User.findOne({ _id: userId }).select("-password");
   if (!user) {
     throw new notFoundError("User Does Not Exist");
@@ -26,7 +24,6 @@ const getSingleUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const { id: userId } = req.params;
-  validateMongoDBId(userId);
   const user = await User.findOneAndUpdate({ _id: userId }, req.body, {
     new: true,
     runValidators: true,
@@ -39,7 +36,6 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   const { id: userId } = req.params;
-  validateMongoDBId(userId);
   const user = await User.findOneAndDelete({ _id: userId });
   if (!user) {
     throw new notFoundError("User Does Not Exist");
@@ -49,7 +45,6 @@ const deleteUser = async (req, res) => {
 
 const blockUser = async (req, res) => {
   const { id: userId } = req.params;
-  validateMongoDBId(userId);
   const user = await User.findOneAndUpdate(
     { _id: userId },
     { isBlocked: true },
@@ -66,7 +61,6 @@ const blockUser = async (req, res) => {
 
 const unblockUser = async (req, res) => {
   const { id: userId } = req.params;
-  validateMongoDBId(userId);
   const user = await User.findOneAndUpdate(
     { _id: userId },
     { isBlocked: false },

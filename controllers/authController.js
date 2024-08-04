@@ -113,7 +113,7 @@ const forgotPassword = async (req, res) => {
   sendEmail(data);
   res
     .status(StatusCodes.OK)
-    .json({ token, message: "Reset Password Mail Sent" });
+    .json({ token, message: "Reset Password Mail Sent! Check Your Mail." });
 };
 
 const resetPassword = async (req, res) => {

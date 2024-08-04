@@ -1,6 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
 const Blog = require("../model/Blog");
-const User = require("../model/User");
 const { notFoundError } = require("../errors");
 
 const createBlog = async (req, res) => {
