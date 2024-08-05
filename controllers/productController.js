@@ -114,6 +114,55 @@ const addProductToWishlist = async (req, res) => {
   }
 };
 
+const addRatingsToProduct = async (req, res) => {
+  const { userId } = req.user;
+  const { prodId, star, comment } = req.body;
+  const product = await Product.findById(prodId);
+  let productAlreadyRated = product.ratings.find(
+    (id) => id.postedBy.toString() === userId.toString()
+  );
+  if (productAlreadyRated) {
+    // find rated product
+    await Product.updateOne(
+      {
+        ratings: { $elemMatch: productAlreadyRated },
+      },
+      {
+        $set: { "ratings.$.star": star, "ratings.$.comment": comment },
+      },
+      {
+        new: true,
+      }
+    );
+  } else {
+    await Product.findByIdAndUpdate(
+      prodId,
+      {
+        $push: {
+          ratings: {
+            star: star,
+            comment: comment,
+            postedBy: userId,
+          },
+        },
+      },
+      { new: true, runValidators: true }
+    );
+  }
+  const getAllRatings = await Product.findById(prodId);
+  let totalRating = getAllRatings.ratings.length;
+  let ratingSum = getAllRatings.ratings
+    .map((item) => item.star)
+    .reduce((prev, curr) => prev + curr, 0);
+  let actualRating = Math.round(ratingSum / totalRating);
+  let finalProduct = await Product.findByIdAndUpdate(
+    prodId,
+    { totalRating: actualRating },
+    { new: true, runValidators: true }
+  );
+  res.status(StatusCodes.OK).json({ finalProduct });
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -121,4 +170,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   addProductToWishlist,
+  addRatingsToProduct,
 };

@@ -7,6 +7,7 @@ const {
   updateProduct,
   deleteProduct,
   addProductToWishlist,
+  addRatingsToProduct,
 } = require("../controllers/productController");
 const {
   authentication,
@@ -29,6 +30,7 @@ router
 router
   .route("/wishlist")
   .patch(authentication, validateIdParam, addProductToWishlist);
+router.route("/ratings").patch(authentication, addRatingsToProduct);
 router
   .route("/:id")
   .get(validateIdParam, getSingleProduct)

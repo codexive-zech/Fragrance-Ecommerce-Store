@@ -34,10 +34,17 @@ var productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    rating: [
+    totalRating: {
+      type: Number,
+      default: 0,
+    },
+    ratings: [
       {
         star: {
           type: Number,
+        },
+        comment: {
+          type: String,
         },
         postedBy: {
           type: mongoose.Schema.Types.ObjectId,
