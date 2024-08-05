@@ -1,7 +1,7 @@
 const mongoose = require("mongoose"); // Erase if already required
 
 // Declare the Schema of the Mongo model
-var prodCategorySchema = new mongoose.Schema({
+const prodCategorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please Provide Product Category"],
