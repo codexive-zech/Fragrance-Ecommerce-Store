@@ -75,6 +75,17 @@ const unblockUser = async (req, res) => {
   res.status(StatusCodes.OK).json({ message: "User Unblocked Successfully" });
 };
 
+const saveUserAddress = async (req, res) => {
+  const { userId } = req.user;
+  const { address } = req.body;
+  const user = await User.findOneAndUpdate(
+    { _id: userId },
+    { address: address },
+    { new: true, runValidators: true }
+  );
+  res.status(StatusCodes.OK).json({ user });
+};
+
 module.exports = {
   getCurrentUser,
   getAllUsers,
@@ -83,4 +94,5 @@ module.exports = {
   deleteUser,
   blockUser,
   unblockUser,
+  saveUserAddress,
 };

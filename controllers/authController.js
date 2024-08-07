@@ -4,6 +4,7 @@ const {
   badRequestError,
   unauthenticatedError,
   notFoundError,
+  unauthorizedError,
 } = require("../errors");
 const { attachCookiesToResponse } = require("../utils/jwt");
 const crypto = require("crypto");
@@ -134,6 +135,41 @@ const resetPassword = async (req, res) => {
   res.status(StatusCodes.OK).json({ user });
 };
 
+const loginAdmin = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new badRequestError("Please Provide Email & Password");
+  }
+  const user = await User.findOne({ email });
+  if (user.role !== "admin") throw new unauthorizedError("Not Authorized");
+  if (!user) {
+    throw new unauthenticatedError("Please Provide Valid Credentials");
+  }
+  const isPasswordCorrect = await user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new unauthenticatedError(
+      "Incorrect Password. Provide Valid Password"
+    );
+  }
+  const tokenDetail = {
+    userId: user._id,
+    role: user.role,
+  };
+  let refreshToken = "";
+  // Check for existing token
+  const existingUserToken = await Token.findOne({ user: tokenDetail.userId });
+  if (existingUserToken) {
+    const { isValid } = existingUserToken;
+    if (!isValid) {
+      throw new unauthenticatedError("Invalid Credentials");
+    }
+    refreshToken = existingUserToken.refreshToken;
+    attachCookiesToResponse({ res, user: tokenDetail, refreshToken });
+  }
+  // End of existing token check
+  res.status(StatusCodes.OK).json({ user });
+};
+
 module.exports = {
   register,
   login,
@@ -141,4 +177,5 @@ module.exports = {
   changePassword,
   forgotPassword,
   resetPassword,
+  loginAdmin,
 };

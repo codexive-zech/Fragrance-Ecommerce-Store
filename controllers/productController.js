@@ -163,6 +163,12 @@ const addRatingsToProduct = async (req, res) => {
   res.status(StatusCodes.OK).json({ finalProduct });
 };
 
+const getProductsInWishlist = async (req, res) => {
+  const { userId } = req.user;
+  const userProduct = await User.findOne({ _id: userId }).populate("wishlist");
+  res.status(StatusCodes.OK).json({ userProduct });
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -171,4 +177,5 @@ module.exports = {
   deleteProduct,
   addProductToWishlist,
   addRatingsToProduct,
+  getProductsInWishlist,
 };

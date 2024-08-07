@@ -7,6 +7,7 @@ const {
   blockUser,
   unblockUser,
   getCurrentUser,
+  saveUserAddress,
 } = require("../controllers/userController");
 const {
   authentication,
@@ -20,6 +21,7 @@ const router = express.Router();
 
 router.route("/").get(getAllUsers);
 router.route("/current-user").get(authentication, getCurrentUser);
+router.route("/save-address").patch(authentication, saveUserAddress);
 router.route("/block/:id").patch(authentication, validateIdParam, blockUser);
 router
   .route("/unblock/:id")
