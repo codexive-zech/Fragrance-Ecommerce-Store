@@ -9,8 +9,8 @@ const blogSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    image: {
-      type: String,
+    images: {
+      type: Array,
       default:
         "https://www.searchenginejournal.com/wp-content/uploads/2020/08/7-ways-a-blog-can-help-your-business-right-now-5f3c06b9eb24e.png",
     },

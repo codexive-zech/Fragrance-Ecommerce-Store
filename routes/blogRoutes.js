@@ -7,6 +7,7 @@ const {
   deleteBlog,
   likeBlog,
   dislikeBlog,
+  uploadBlogImage,
 } = require("../controllers/blogController");
 const {
   authentication,
@@ -16,6 +17,10 @@ const {
   validateIdParam,
   validateBlogInput,
 } = require("../middlewares/validationMiddleware");
+const {
+  uploadImage,
+  blogImageResize,
+} = require("../middlewares/multerMiddleware");
 const router = express.Router();
 
 router
@@ -26,6 +31,15 @@ router
 router.route("/likes").patch(authentication, likeBlog);
 
 router.route("/dislikes").patch(authentication, dislikeBlog);
+router
+  .route("/upload/:id")
+  .patch(
+    authentication,
+    authorization("admin"),
+    validateIdParam,
+    uploadImage.array("images", 2),
+    uploadBlogImage
+  );
 
 router
   .route("/:id")

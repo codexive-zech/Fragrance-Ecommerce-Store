@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema(
     color: {
       type: String,
     },
-    image: {
+    images: {
       type: Array,
     },
     sold: {

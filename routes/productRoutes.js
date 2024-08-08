@@ -9,6 +9,7 @@ const {
   addProductToWishlist,
   addRatingsToProduct,
   getProductsInWishlist,
+  uploadProductImage,
 } = require("../controllers/productController");
 const {
   authentication,
@@ -18,6 +19,10 @@ const {
   validateIdParam,
   validateProductInput,
 } = require("../middlewares/validationMiddleware");
+const {
+  uploadImage,
+  productImageResize,
+} = require("../middlewares/multerMiddleware");
 
 router
   .route("/")
@@ -33,6 +38,16 @@ router
   .patch(authentication, addProductToWishlist)
   .get(authentication, getProductsInWishlist);
 router.route("/ratings").patch(authentication, addRatingsToProduct);
+router
+  .route("/upload/:id")
+  .patch(
+    authentication,
+    authorization("admin"),
+    validateIdParam,
+    uploadImage.array("images", 10),
+    uploadProductImage
+  );
+
 router
   .route("/:id")
   .get(validateIdParam, getSingleProduct)

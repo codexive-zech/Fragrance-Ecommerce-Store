@@ -1,6 +1,13 @@
 const { StatusCodes } = require("http-status-codes");
 const Blog = require("../model/Blog");
 const { notFoundError } = require("../errors");
+const { cloudinaryUploadBlogsImage } = require("../utils/cloudinary");
+const path = require("path");
+const fs = require("fs");
+const {
+  formatImage,
+  formatImages,
+} = require("../middlewares/multerMiddleware");
 
 const createBlog = async (req, res) => {
   const blog = await Blog.create(req.body);
@@ -144,6 +151,35 @@ const dislikeBlog = async (req, res) => {
   }
 };
 
+const uploadBlogImage = async (req, res) => {
+  const { id: blogId } = req.params;
+  // Function to replace backslashes with forward slashes in file paths
+  const normalizePath = (filePath) => {
+    return filePath.split(path.sep).join("/");
+  };
+  const blogImageUrls = [];
+  const files = req.files;
+  console.log(files);
+  const formattedImage = formatImages(req.files);
+  for (const file of files) {
+    const { path } = file;
+    console.log(path);
+    const normalizedPath = normalizePath(path);
+    const newImage = await cloudinaryUploadBlogsImage(formattedImag);
+    blogImageUrls.push(newImage);
+  }
+  const blog = await Blog.findOneAndUpdate(
+    { _id: blogId },
+    {
+      images: blogImageUrls.map((image) => {
+        return image;
+      }),
+    },
+    { new: true, runValidators: true }
+  );
+  res.status(StatusCodes.OK).json({ blog });
+};
+
 module.exports = {
   createBlog,
   getBlogs,
@@ -152,4 +188,5 @@ module.exports = {
   deleteBlog,
   likeBlog,
   dislikeBlog,
+  uploadBlogImage,
 };

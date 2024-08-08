@@ -3,6 +3,9 @@ const { notFoundError, badRequestError } = require("../errors");
 const Product = require("../model/Product");
 const slugify = require("slugify");
 const User = require("../model/User");
+const { cloudinaryUploadProductsImage } = require("../utils/cloudinary");
+const path = require("path");
+const fs = require("fs");
 
 const createProduct = async (req, res) => {
   if (req.body.name) {
@@ -169,6 +172,32 @@ const getProductsInWishlist = async (req, res) => {
   res.status(StatusCodes.OK).json({ userProduct });
 };
 
+const uploadProductImage = async (req, res) => {
+  const { id: prodId } = req.params;
+  // Function to replace backslashes with forward slashes in file paths
+  const normalizePath = (filePath) => {
+    return filePath.split(path.sep).join("/");
+  };
+  const productImageUrls = [];
+  const files = formatImage(req.files);
+  for (const file of files) {
+    const { path } = file;
+    const normalizedPath = normalizePath(path);
+    const newImage = await cloudinaryUploadProductsImage(normalizedPath);
+    productImageUrls.push(newImage);
+  }
+  const product = await Product.findOneAndUpdate(
+    { _id: prodId },
+    {
+      images: productImageUrls.map((image) => {
+        return image;
+      }),
+    },
+    { new: true, runValidators: true }
+  );
+  res.status(StatusCodes.OK).json({ product });
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -178,4 +207,5 @@ module.exports = {
   addProductToWishlist,
   addRatingsToProduct,
   getProductsInWishlist,
+  uploadProductImage,
 };
